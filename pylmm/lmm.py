@@ -102,13 +102,13 @@ def GWAS(Y, X, K, Kva=[], Kve=[], X0=None, REML=True, refit=False):
     n = X.shape[0]
     m = X.shape[1]
 
-    if X0 == None:
+    if X0 is None:
         X0 = np.ones((n, 1))
 
     # Remove missing values in Y and adjust associated parameters
     v = np.isnan(Y)
     if v.sum():
-        keep = True - v
+        keep = True ^ v
         keep = keep.reshape((-1,))
         Y = Y[keep]
         X = X[keep, :]
@@ -134,7 +134,7 @@ def GWAS(Y, X, K, Kva=[], Kve=[], X0=None, REML=True, refit=False):
         x = X[:, i].reshape((n, 1))
         v = np.isnan(x).reshape((-1,))
         if v.sum():
-            keep = True - v
+            keep = True ^ v
             xs = x[keep, :]
             if xs.var() == 0:
                 PS.append(np.nan)
@@ -192,16 +192,16 @@ class LMM:
         When this parameter is not provided, the constructor will set X0 to an n x 1 matrix of all ones to represent a mean effect.
         """
 
-        if X0 == None:
+        if X0 is None:
             X0 = np.ones(len(Y)).reshape(len(Y), 1)
         self.verbose = verbose
 
-        x = True - np.isnan(Y)
+        x = True ^ np.isnan(Y)
         x = x.reshape(-1,)
         if not x.sum() == len(Y):
             if self.verbose:
                 sys.stderr.write(
-                    "Removing %d missing values from Y\n" % ((True - x).sum()))
+                    "Removing %d missing values from Y\n" % ((True ^ x).sum()))
             Y = Y[x]
             K = K[x, :][:, x]
             X0 = X0[x, :]
@@ -280,7 +280,7 @@ class LMM:
            REML is computed by adding additional terms to the standard LL and can be computed by setting REML=True.
         """
 
-        if X == None:
+        if X is None:
             X = self.X0t
         elif stack:
             self.X0t_stack[:, (self.q)] = matrixMult(self.Kve.T, X)[:, 0]
@@ -342,7 +342,7 @@ class LMM:
            Given this optimum, the function computes the LL and associated ML solutions.
         """
 
-        if X == None:
+        if X is None:
             X = self.X0t
         else:
             #X = np.hstack([self.X0t,matrixMult(self.Kve.T, X)])
@@ -367,7 +367,7 @@ class LMM:
     def association(self, X, h=None, stack=True, REML=True, returnBeta=False):
         """
           Calculates association statitics for the SNPs encoded in the vector X of size n.
-          If h == None, the optimal h stored in optH is used.
+          If h is None, the optimal h stored in optH is used.
 
         """
         if stack:
@@ -375,7 +375,7 @@ class LMM:
             self.X0t_stack[:, (self.q)] = matrixMult(self.Kve.T, X)[:, 0]
             X = self.X0t_stack
 
-        if h == None:
+        if h is None:
             h = self.optH
 
         L, beta, sigma, betaVAR = self.LL(h, X, stack=False, REML=REML)
