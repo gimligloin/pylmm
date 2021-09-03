@@ -63,7 +63,7 @@ def calculateKinship(W, center=False):
     m = W.shape[1]
     keep = []
     for i in range(m):
-        mn = W[True - np.isnan(W[:, i]), i].mean()
+        mn = W[True ^ np.isnan(W[:, i]), i].mean()
         W[np.isnan(W[:, i]), i] = mn
         vr = W[:, i].var()
         if vr == 0:
